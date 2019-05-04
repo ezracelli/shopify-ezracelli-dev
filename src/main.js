@@ -11,8 +11,6 @@ Vue.config.productionTip = false
 
 Vue.prototype.$moment = moment
 
-console.log(dependencies)
-
 dependencies.global().then(() => {
   /* eslint-disable no-new */
   new Vue({

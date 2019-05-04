@@ -3,7 +3,7 @@ import store from '../store'
 const dependencies = {
   global () {
     return store.dispatch('initShopifyApp').then(() => {
-      store.dispatch('loadLogoSrc')
+      // store.dispatch('loadLogoSrc')
     })
   },
   home () {

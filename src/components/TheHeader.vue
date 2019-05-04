@@ -32,10 +32,12 @@ export default {
 
 <style scoped lang="scss">
 .site-header {
-  // @supports (position: sticky) {
-  //   position: sticky;
-  // }
+  @supports (position: sticky) {
+    position: sticky;
+  }
 
+  background-color: white;
+  border-bottom: 1px solid black;
   height: 100px;
   left: 0;
   position: fixed;

@@ -12,14 +12,9 @@
 import TheHeader from '@/components/TheHeader'
 // import TheFooter from './components'
 
-import dependencies from './router/dependencies'
-
 export default {
   name: 'App',
   components: { TheHeader },
-  created () {
-    dependencies.home()
-  },
 }
 </script>
 

@@ -7,8 +7,11 @@ import dependencies from './router/dependencies'
 import store from './store'
 import moment from 'moment'
 
+import VueProgressBar from 'vue-progressbar'
+
 Vue.config.productionTip = false
 
+Vue.use(VueProgressBar, { autoFinish: false })
 Vue.prototype.$moment = moment
 
 dependencies.global().then(() => {

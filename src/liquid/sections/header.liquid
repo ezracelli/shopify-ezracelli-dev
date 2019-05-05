@@ -1,0 +1,34 @@
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo1",
+      "label": "Logo image"
+    },
+    {
+      "type": "link_list",
+      "id": "main_linklist",
+      "label": "Menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}
+
+<script>
+  window.shopify = window.shopify || {}
+  var shopify = window.shopify
+
+  shopify.sections = shopify.sections || {}
+  shopify.sections.header = {
+    logo: '{{ section.settings.logo | file_url | replace: "/files/files", "/files" }}',
+    menu: '{{ section.settings.main_linklist }}',
+  }
+</script>

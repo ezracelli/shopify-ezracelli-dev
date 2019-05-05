@@ -15,15 +15,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <% } %>
 
+  {% capture content_for_header %}
+    {{ content_for_header }}
+  {% endcapture %}
+
   <% if (!htmlWebpackPlugin.options.devServer) { %>
-    {% capture content_for_header %}
-      {{ content_for_header }}
-    {% endcapture %}
+
     <title>{{ shop.name }}</title>
     
-    <% for (var css in htmlWebpackPlugin.files.css) { %>
-    <link href="{{ <%= htmlWebpackPlugin.files.css[css].replace('/assets/', '').replace(/^.*$/, '\'$&\'') %> | asset_url }}" rel="stylesheet">
-    <% } %>
+    {% include 'style-tags' %}
   <% } %>
 
 </head>
@@ -59,14 +59,11 @@
   </script>
   <% } %>
 
-  <% if (!htmlWebpackPlugin.options.devServer) { %>
-    {% capture content_for_layout %}
-      {{ content_for_layout }}
-    {% endcapture %}
+  {% section 'header' %}
+  {{ content_for_layout }}
 
-    <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
-    <script src="{{ <%= htmlWebpackPlugin.files.chunks[chunk].entry.replace(/\/(assets\/)?/, '').replace(/^.*$/, '\'$&\'') %> | asset_url }}"></script>
-    <% } %>
+  <% if (!htmlWebpackPlugin.options.devServer) { %>
+    {% include 'script-tags' %}
   <% } %>
 
   <% if (htmlWebpackPlugin.options.googleAnalytics) { %>

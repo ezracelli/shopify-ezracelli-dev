@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+
+import { get } from 'lodash'
 import axios from 'axios'
 import querystring from 'querystring'
 
@@ -16,6 +18,24 @@ const items = [
   'collects',
   'blogs',
   'shop',
+]
+
+const assets = [
+  {
+    folder: 'config',
+    name: 'settingsData',
+    filename: 'settings_data.json',
+    search: { fields: [ 'value' ] },
+    getValue: ({ value }) => JSON.parse(value),
+  },
+  // {
+  //   folder: 'assets',
+  //   name: 'logoSrc',
+  //   filename: 'site-logo.jpg',
+  //   search: { fields: [ 'public_url' ] },
+  //   // eslint-disable-next-line camelcase
+  //   getValue: ({ public_url }) => public_url,
+  // },
 ]
 
 const subItems = [ [ 'blogs', 'articles' ] ]
@@ -44,9 +64,17 @@ const store = new Vuex.Store({
 
   // default state on access is Symbol.for('default')
   state: Object.assign(
-    { logoSrc: Symbol.for('default') },
+    {
+      logoSrc: get(window, [
+        'shopify',
+        'sections',
+        'header',
+        'logo',
+      ], Symbol.for('default')),
+    },
 
-    // map each item or item/subItem set to a state field
+    // map each asset, item, or item/subItem set to a state field
+    ...assets.map(({ name }) => ({ [name]: Symbol.for('default') })),
     ...items.map(item => ({ [item]: Symbol.for('default') })),
     ...subItems.map(([ item, subItem ]) => ({ [subItem]: new Proxy({}, proxyHandler) })),
   ),
@@ -54,8 +82,14 @@ const store = new Vuex.Store({
   mutations: Object.assign(
 
     { setLogoSrc: (state, data) => Vue.set(state, 'logoSrc', data) },
+    // map each asset to a setter
+    ...assets.map(({ name }) => ({
+      [`set${capitalize(name)}`] (state, data) {
+        Vue.set(state, name, data)
+      },
+    })),
 
-    // map each item set to a setter
+    // map each item to a setter
     ...items.map(item => ({
       [`set${capitalize(item)}`] (state, data) {
         Vue.set(state, item, data)
@@ -79,23 +113,32 @@ const store = new Vuex.Store({
         return axios
           .get(`${shopifyAppHost}/shopify?shop=${shopifyAppShop}.myshopify.com`)
       },
+    },
 
-      loadLogoSrc (context) {
-        if (context.getters.logoSrc !== Symbol.for('default')) return Promise.resolve()
+    ...assets.map(({
+      folder, name, filename,
+      search = {},
+      getValue = data => data,
+    }) => ({
+      [`load${capitalize(name)}`] (context) {
+        if (context.getters[name] !== Symbol.for('default')) return Promise.resolve()
 
         let url = `${shopifyAppHost}/api/themes/${shopifyThemeId}/assets`
 
+        if (search.fields) search.fields = search.fields.join(',')
+
         const query = {
-          'asset[key]': 'assets/site-logo.jpg',
-          'fields': 'public_url',
+          'asset[key]': `${folder}/${filename}`,
+          ...search,
         }
+
         url += `?${querystring.stringify(query)}`
 
-        return axios.get(url, { withCredentials: true }).then(({ data }) =>
-          context.commit('setLogoSrc', data.asset.public_url)
-        )
+        return axios.get(url, { withCredentials: true }).then(({ data }) => {
+          context.commit(`set${capitalize(name)}`, getValue(data.asset))
+        })
       },
-    },
+    })),
 
     // map each item to a loader at that item's endpoint
     ...items.map(item => ({
@@ -134,8 +177,9 @@ const store = new Vuex.Store({
 
   ),
   getters: Object.assign(
-
     { logoSrc: state => state.logoSrc },
+
+    ...assets.map(({ name }) => ({ [name]: state => state[name] })),
 
     // map each item set to a getter
     ...items.map(item => ({

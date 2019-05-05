@@ -1,6 +1,6 @@
 <template>
-  <header class="site-header" :class="{ small: atScrollTop }">
-    <img :src="logoSrc" alt="Logo">
+  <header class="site-header" :class="{ small: hasScrolled }">
+    <img v-show="logoSrc" :src="logoSrc" alt="Logo">
   </header>
 </template>
 
@@ -10,7 +10,7 @@ import $ from 'jquery'
 export default {
   name: 'TheHeader',
   data () {
-    return { atScrollTop: false }
+    return { hasScrolled: false }
   },
   computed: {
     logoSrc () {
@@ -19,12 +19,14 @@ export default {
     },
   },
   created () {
-    this.$store.dispatch('loadLogoSrc')
+    // this.$store.dispatch('loadLogoSrc')
 
     $(window).on('scroll', () => {
-      if (window.scrollY > 20) {
-        if (!this.atScrollTop) this.atScrollTop = true
-      } else this.atScrollTop = false
+      if (window.scrollY > 30) {
+        if (!this.hasScrolled) this.hasScrolled = true
+      } else {
+        this.hasScrolled = false
+      }
     })
   },
 }
@@ -32,9 +34,9 @@ export default {
 
 <style scoped lang="scss">
 .site-header {
-  @supports (position: sticky) {
-    position: sticky;
-  }
+  // @supports (position: sticky) {
+  //   position: sticky;
+  // }
 
   background-color: white;
   border-bottom: 1px solid black;
